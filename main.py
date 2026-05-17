@@ -268,10 +268,82 @@ st.write(
 st.subheader("Numerical Stability")
 
 cond = np.linalg.cond(A)
-
 st.write("Condition Number:", round(cond, 2))
 
 if cond > 100:
     st.error("System is sensitive!")
 else:
     st.success("System is stable!")
+
+
+
+st.subheader("Capacity vs Usage")
+
+fig, ax = plt.subplots()
+
+ax.bar(["M1", "M2", "M3"], capacity, alpha=0.5, label="Capacity", color= "#98DFF7")
+ax.bar(["M1", "M2", "M3"], usage, alpha=0.8, label="Usage", color= "#12BCF5")
+
+# Background
+ax.set_facecolor("#FCF8F8")
+fig.patch.set_facecolor("#FCF8F8")
+
+# Remove borders
+for spine in ax.spines.values():
+    spine.set_visible(False)
+
+# Soft grid
+ax.grid(
+    axis='y',
+    linestyle='--',
+    alpha=0.15
+)
+
+# Tick styling
+ax.tick_params(
+    colors="black",
+    labelsize=11
+)
+
+ax.legend()
+
+
+st.pyplot(fig)
+
+
+st.subheader("Monte Carlo Demand Simulation")
+
+n_sim = 100
+results_mc = []
+
+for _ in range(n_sim):
+    b_mc = b + np.random.normal(0, 5, len(b))
+    x_mc = solve_lu(b_mc)
+    results_mc.append(x_mc)
+
+results_mc = np.array(results_mc)
+
+st.write("Mean production:", np.mean(results_mc, axis=0))
+st.write("Std deviation:", np.std(results_mc, axis=0))
+
+cost = np.array([10, 12, 8])
+profit = np.array([20, 25, 15])
+
+total_cost = np.sum(x * cost)
+total_profit = np.sum(x * profit)
+
+st.subheader("Economic Analysis")
+st.write("Total Cost:", total_cost)
+st.write("Total Profit:", total_profit)
+st.write("Profit:", total_profit - total_cost)
+
+x = np.maximum(solve_lu(b), 0)
+
+st.sidebar.markdown("""
+### Model Info
+A x = b system solved using LU decomposition.
+
+- A: production constraints
+- x: production levels
+- b: demand vector
+""")
